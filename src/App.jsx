@@ -1,60 +1,69 @@
-//  Root component: sets up React Router and global providers
+// ============================================================
+//  TaskFlow – App.jsx
+//  Sets up all routes and wraps the app in Auth + Task providers.
+//  PrivateRoute redirects to /login if the user is not logged in.
+// ============================================================
 
-
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { TaskProvider } from './context/TaskContext';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { TaskProvider }          from './context/TaskContext';
 import Navbar      from './components/Navbar';
 import HomePage    from './pages/HomePage';
 import ListPage    from './pages/ListPage';
 import DetailPage  from './pages/DetailPage';
 import AddTaskPage from './pages/AddTaskPage';
+import LoginPage   from './pages/LoginPage';
 import './index.css';
 
-function NotFound() {
-  return (
-    <div className="page">
-      <div className="container">
-        <div className="state-box" style={{ paddingTop: '120px' }}>
-          <span className="state-emoji">🌑</span>
-          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '2rem' }}>
-            404 Page not found
-          </h2>
-          <p style={{ color: 'var(--txt-sub)' }}>
-            The page you're looking for doesn't exist.
-          </p>
-          <a href="/" className="btn btn-ghost btn-sm" style={{ marginTop: 8 }}>
-            ← Go Home
-          </a>
+// ── Guard: redirect to /login if not authenticated ────────────
+function PrivateRoute({ children }) {
+  const { user, loading } = useAuth();
+
+  // Still checking saved token — show a spinner
+  if (loading) {
+    return (
+      <div className="page">
+        <div className="state-box">
+          <div className="spinner" />
         </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  return user ? children : <Navigate to="/login" replace />;
 }
 
 export default function App() {
   return (
-    <TaskProvider>
-      <BrowserRouter>
-        <Navbar />
-        <Routes>
-          {/* /home — rubric requirement (also maps / for convenience) */}
-          <Route path="/"       element={<HomePage />} />
-          <Route path="/home"   element={<HomePage />} />
+    <AuthProvider>
+      <TaskProvider>
+        <BrowserRouter>
+          <Navbar />
+          <Routes>
 
-          {/* /list — rubric requirement */}
-          <Route path="/list"   element={<ListPage />} />
-          <Route path="/tasks"  element={<ListPage />} />
+            {/* ── Public route ── */}
+            <Route path="/login" element={<LoginPage />} />
 
-          {/* /details/:id — rubric requirement */}
-          <Route path="/details/:id" element={<DetailPage />} />
-          <Route path="/tasks/:id"   element={<DetailPage />} />
+            {/* ── Protected routes ── */}
+            <Route path="/" element={
+              <PrivateRoute><HomePage /></PrivateRoute>
+            } />
+            <Route path="/tasks" element={
+              <PrivateRoute><ListPage /></PrivateRoute>
+            } />
+            <Route path="/tasks/:id" element={
+              <PrivateRoute><DetailPage /></PrivateRoute>
+            } />
+            <Route path="/add" element={
+              <PrivateRoute><AddTaskPage /></PrivateRoute>
+            } />
 
-          {/* /add — rubric requirement */}
-          <Route path="/add"    element={<AddTaskPage />} />
+            {/* ── Catch-all ── */}
+            <Route path="*" element={<Navigate to="/" replace />} />
 
-          <Route path="*"       element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TaskProvider>
+          </Routes>
+        </BrowserRouter>
+      </TaskProvider>
+    </AuthProvider>
   );
 }

@@ -1,0 +1,213 @@
+/* ============================================================
+   TaskFlow – LoginPage.css
+   Matches the dark productivity theme of the main app.
+   Uses the same CSS variables defined in index.css
+   ============================================================ */
+
+/* ── Page wrapper ────────────────────────────────────────────── */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Background glow orbs (decorative) ──────────────────────── */
+.login-page__orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.login-page__orb--1 {
+  width: 400px;
+  height: 400px;
+  background: var(--accent);
+  opacity: 0.06;
+  top: -80px;
+  right: -80px;
+  animation: orb-float 8s ease-in-out infinite;
+}
+
+.login-page__orb--2 {
+  width: 300px;
+  height: 300px;
+  background: var(--lime);
+  opacity: 0.05;
+  bottom: -60px;
+  left: -60px;
+  animation: orb-float 10s ease-in-out infinite reverse;
+}
+
+@keyframes orb-float {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%       { transform: translateY(-20px) scale(1.05); }
+}
+
+/* ── Card ────────────────────────────────────────────────────── */
+.login-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 440px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  animation: card-in 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Brand ───────────────────────────────────────────────────── */
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.login-brand__mark {
+  color: var(--accent);
+  font-size: 1.2rem;
+  animation: spin-slow 8s linear infinite;
+}
+
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+
+.login-brand__name {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  color: var(--txt);
+  letter-spacing: 0.02em;
+}
+
+.login-brand__name em {
+  color: var(--accent);
+  font-style: normal;
+}
+
+/* ── Heading ─────────────────────────────────────────────────── */
+.login-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 5vw, 2.4rem);
+  color: var(--txt);
+  line-height: 1;
+  margin-bottom: 8px;
+  letter-spacing: 0.02em;
+}
+
+.login-sub {
+  font-size: 0.875rem;
+  color: var(--txt-muted);
+  margin-bottom: 28px;
+  line-height: 1.5;
+}
+
+/* ── API error banner ────────────────────────────────────────── */
+.login-api-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--danger-dim);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  color: var(--danger);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 20px;
+  animation: card-in 0.2s ease;
+}
+
+/* ── Form ────────────────────────────────────────────────────── */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Submit button ───────────────────────────────────────────── */
+.login-submit {
+  width: 100%;
+  padding: 13px;
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: #0d0f14;
+  font-family: var(--font);
+  font-size: 0.95rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: all var(--ease);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.login-submit:hover:not(:disabled) {
+  background: #7af5e0;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(94, 234, 212, 0.3);
+}
+
+.login-submit:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.login-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Switch mode ─────────────────────────────────────────────── */
+.login-switch {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 0.875rem;
+  color: var(--txt-muted);
+}
+
+.login-switch__btn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-family: var(--font);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: opacity var(--ease);
+  padding: 0;
+}
+
+.login-switch__btn:hover {
+  opacity: 0.75;
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 28px 20px;
+  }
+
+  .login-title {
+    font-size: 1.8rem;
+  }
+}
