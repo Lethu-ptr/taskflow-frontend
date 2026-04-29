@@ -1,54 +1,113 @@
-//  TaskFlow – services/api.js
-//  All HTTP calls to the Express backend.
-//  Base URL is read from .env: VITE_API_URL
+// Express server with security, CORS, rate-limiting, routes.
 
+require('dotenv').config();
 
-const BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const express = require('express');
+const helmet = require('helmet');
+const cors = require('cors');
+const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
 
-// Core fetch helper 
-async function request(path, options = {}) {
-  const token = localStorage.getItem('tf_token');
+const authRoutes = require('./routes/auth');
+const taskRoutes = require('./routes/tasks');
+const errorHandler = require('./middleware/errorHandler');
 
-  const res = await fetch(`${BASE}${path}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    ...options,
-  });
+// Initialise DB (runs CREATE TABLE IF NOT EXISTS on first boot)
+require('./models/db');
 
-  const data = await res.json().catch(() => ({}));
+const app = express();
+const PORT = process.env.PORT || 5000;
 
-  if (!res.ok) {
-    const msg = data.message || data.error || `Request failed (${res.status})`;
-    throw new Error(msg);
-  }
+// Security headers
+app.use(helmet());
 
-  return data;
+// CORS
+const allowedOrigins = (process.env.CLIENT_ORIGIN || 'http://localhost:5173')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+
+const vercelPreviewPattern = /^https:\/\/taskflow-frontend-.*\.vercel\.app$/;
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (curl, Postman, server-to-server)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    // Optional: allow Vercel preview deployments
+    if (vercelPreviewPattern.test(origin)) {
+      return callback(null, true);
+    }
+
+    console.error(`CORS blocked origin: ${origin}`);
+    return callback(new Error(`CORS: origin ${origin} not allowed`));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
+// Body parsing
+app.use(express.json({ limit: '10kb' }));
+
+// Logging
+if (process.env.NODE_ENV !== 'test') {
+  app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 }
 
-// Auth endpoints
-export const authApi = {
-  register: (name, email, password) =>
-    request('/auth/register', {
-      method: 'POST',
-      body: JSON.stringify({ name, email, password }),
-    }),
+// Rate limiting
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Too many requests. Please try again later.' },
+});
 
-  login: (email, password) =>
-    request('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    }),
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Too many auth attempts. Please wait and try again.' },
+});
 
-  me: () => request('/auth/me'),
-};
+app.use(globalLimiter);
 
-// Task endpoints
-export const tasksApi = {
-  getAll:  ()         => request('/tasks'),
-  getOne:  (id)       => request(`/tasks/${id}`),
-  create:  (data)     => request('/tasks',       { method: 'POST',   body: JSON.stringify(data) }),
-  update:  (id, data) => request(`/tasks/${id}`, { method: 'PUT',    body: JSON.stringify(data) }),
-  remove:  (id)       => request(`/tasks/${id}`, { method: 'DELETE' }),
-};
+// Health check
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    app: 'TaskFlow API',
+    version: '1.0.0',
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// API Routes
+app.use('/api/auth', authLimiter, authRoutes);
+app.use('/api/tasks', taskRoutes);
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ message: `Route ${req.method} ${req.path} not found.` });
+});
+
+// Centralised error handler
+app.use(errorHandler);
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`\nTaskFlow API running on http://localhost:${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`JWT expires: ${process.env.JWT_EXPIRES_IN || '7d'}\n`);
+});
+
+module.exports = app;
