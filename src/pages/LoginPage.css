@@ -1,10 +1,8 @@
-/* ============================================================
-   TaskFlow – LoginPage.css
+/* TaskFlow – LoginPage.css
    Matches the dark productivity theme of the main app.
-   Uses the same CSS variables defined in index.css
-   ============================================================ */
+   Uses the same CSS variables defined in index.css */
 
-/* ── Page wrapper ────────────────────────────────────────────── */
+/* Page wrapper */
 .login-page {
   min-height: 100vh;
   display: flex;
@@ -16,7 +14,7 @@
   overflow: hidden;
 }
 
-/* ── Background glow orbs (decorative) ──────────────────────── */
+/* Background glow orbs (decorative) */
 .login-page__orb {
   position: absolute;
   border-radius: 50%;
@@ -50,7 +48,7 @@
   50%       { transform: translateY(-20px) scale(1.05); }
 }
 
-/* ── Card ────────────────────────────────────────────────────── */
+/* Card */
 .login-card {
   position: relative;
   z-index: 1;
@@ -69,7 +67,7 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Brand ───────────────────────────────────────────────────── */
+/*Brand */
 .login-brand {
   display: flex;
   align-items: center;
@@ -99,7 +97,7 @@
   font-style: normal;
 }
 
-/* ── Heading ─────────────────────────────────────────────────── */
+/* Heading */
 .login-title {
   font-family: var(--font-display);
   font-size: clamp(1.8rem, 5vw, 2.4rem);
@@ -116,7 +114,7 @@
   line-height: 1.5;
 }
 
-/* ── API error banner ────────────────────────────────────────── */
+/* API error banner */
 .login-api-error {
   display: flex;
   align-items: center;
@@ -132,14 +130,14 @@
   animation: card-in 0.2s ease;
 }
 
-/* ── Form ────────────────────────────────────────────────────── */
+/* Form */
 .login-form {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-/* ── Submit button ───────────────────────────────────────────── */
+/* Submit button */
 .login-submit {
   width: 100%;
   padding: 13px;
@@ -175,7 +173,7 @@
   transform: none;
 }
 
-/* ── Switch mode ─────────────────────────────────────────────── */
+/* Switch mode */
 .login-switch {
   text-align: center;
   margin-top: 24px;
@@ -201,7 +199,7 @@
   opacity: 0.75;
 }
 
-/* ── Responsive ──────────────────────────────────────────────── */
+/* Responsive */
 @media (max-width: 480px) {
   .login-card {
     padding: 28px 20px;

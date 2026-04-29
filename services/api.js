@@ -1,12 +1,11 @@
-// ============================================================
 //  TaskFlow – services/api.js
 //  All HTTP calls to the Express backend.
 //  Base URL is read from .env: VITE_API_URL
-// ============================================================
+
 
 const BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-// ── Core fetch helper ─────────────────────────────────────────
+// Core fetch helper 
 async function request(path, options = {}) {
   const token = localStorage.getItem('tf_token');
 
@@ -28,7 +27,7 @@ async function request(path, options = {}) {
   return data;
 }
 
-// ── Auth endpoints ────────────────────────────────────────────
+// Auth endpoints
 export const authApi = {
   register: (name, email, password) =>
     request('/auth/register', {
@@ -45,7 +44,7 @@ export const authApi = {
   me: () => request('/auth/me'),
 };
 
-// ── Task endpoints ────────────────────────────────────────────
+// Task endpoints
 export const tasksApi = {
   getAll:  ()         => request('/tasks'),
   getOne:  (id)       => request(`/tasks/${id}`),

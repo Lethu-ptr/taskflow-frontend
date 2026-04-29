@@ -1,15 +1,14 @@
-// ============================================================
 //  TaskFlow – LoginPage.jsx   ( route: /login )
 //  Handles both Login and Register in one form.
 //  Matches TaskFlow dark productivity theme.
-// ============================================================
+
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './LoginPage.css';
 
-// ── Validation ────────────────────────────────────────────────
+// Validation
 function validate(form, isRegister) {
   const errors = {};
 
